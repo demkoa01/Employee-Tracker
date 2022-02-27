@@ -24,3 +24,5 @@ VALUES
     ('Mitch', 'Brien', '03', '05'),
     ('Allison', 'Demkovich', '04', '05'),
     ('Adam', 'Carlson', '05', '01');
+
+SELECT * FROM employee;
