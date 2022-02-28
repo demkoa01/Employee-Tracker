@@ -226,13 +226,66 @@ function addRole() {
 };
 
 // updateEmployee()
-function updateEmployee() {};
+function updateEmployee() {
+    inqurier
+        .prompt([
+        {
+            type: "input",
+            message: "Enter the employee's ID you want to be updated.",
+            name: "updateEmployee"
+        },
+        {
+            type: "input",
+            message: "Enter the new role ID for that employee.",
+            name: "newRole"
+        }
+        ])
+        .then(function (res) {
+            const updateEmployee = res.updateEmployee;
+            const newRole = res.newRole;
+            const queryUpdate = `UPDATE employee SET role_id = "${newRole}" WHERE id = "${updateEmployee}"`;
+            connection.query(queryUpdate, function (err, res) {
+            if (err) {
+                throw err;
+            }
+            console.table(res);
+            options();
+            })
+        });
+};
 
 // deleteEmployee()
 function deleteEmployee() {
-    let employeeArr = [];
+    const employeeSQL = 'SELECT * FROM employee';
 
+    connection.query(employeeSQL, (err, data) => {
+        if (err) throw err;
+
+        const employees = data.map(({ id, first_name, last_name }) => ({ name: first_name +" " + last_name, value: id }));
+
+        inqurier
+        .prompt([
+            {
+                tpye: 'list',
+                name: 'name',
+                message: 'Which employee would you like to remove? Please provide their ID #.',
+                choices: employees
+            }
+        ]).then(empChoice => {
+            const employee = empChoice.name;
+            const sql = 'DELETE FROM employee WHERE id = ? ';
+
+            connection.query(sql, employee, (err, res) => {
+                if (err) throw err;
+                console.log("Employee successfully removed.");
+                viewEmployees();
+            });
+        });
+    });
 };
 
 // exitApp()
-function exitApp() {};
+function exitApp() {
+    connection.end();
+    console.log('You have left the application.');
+};
