@@ -1,11 +1,6 @@
--- DROP DATABASE IF EXISTS employee;
--- CREATE DATABASE employee;
-
--- USE employee;
-
-DROP IF TABLE EXISTS department;
-DROP IF TABLE EXISTS roles;
-DROP IF TABLE EXISTS employee;
+DROP TABLE IF EXISTS department;
+DROP TABLE IF EXISTS roles;
+DROP TABLE IF EXISTS employee;
 
 CREATE TABLE department (
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
@@ -16,8 +11,8 @@ CREATE TABLE roles (
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(30) NOT NULL,
     salary DECIMAL(10,2) NOT NULL,
-    department_id INTEGER NOT NULL,
-    CONSTRAINT fk_department FOREIGN KEY (department_id) REFERENCES department(id) ON DELETE SET NULL
+    department_id INTEGER,
+    FOREIGN KEY (department_id) REFERENCES department(id) ON DELETE CASCADE
 );
 
 CREATE TABLE employee (
@@ -26,5 +21,5 @@ CREATE TABLE employee (
     last_name VARCHAR(30) NOT NULL,
     role_id INTEGER NOT NULL,
     manager_id INTEGER DEFAULT NULL,
-    CONSTRAINT fk_role FOREIGN KEY (role_id) REFERENCES employee(id) ON DELETE SET NULL
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE CASCADE
 );

@@ -3,16 +3,25 @@ require('dotenv').config();
 const mysql = require('mysql2');
 const inqurier = require('inquirer');
 const consoleTable = require('console.table');
-const { connect } = require('./db/connection');
-const db = require('./db/connection');
 
 // connect to database
-db.connect(err => {
-    if (err) throw err;
-    console.log('Database connected.');
-    options();
-})
+var connection = mysql.createConnection(
+    {
+    host: "localhost",
+    // my username
+    user: 'root',
+    //my PW
+    password: 'Mrs.Carlson2023',
+    database: 'employee'
+    },
+    console.log('Connected to the employee database!')
+);
 
+// after connnected to db move to user prompts
+connection.connect(function(err) {
+    if (err) throw err;
+    options();
+});
 
 // prompt user with different options
 function options() {
@@ -70,7 +79,7 @@ function options() {
 // viewEmployees()
 function viewEmployees() {
     var query = 'SELECT * FROM employee';
-    connect.query(query, function(err, res) {
+    connection.query(query, function(err, res) {
         if (err) throw err;
         console.log(res.length + 'employees found.');
         console.table('All Employees:', res);
@@ -81,7 +90,7 @@ function viewEmployees() {
 // viewDepartments()
 function viewDepartments() {
     var query = 'SELECT * FROM department';
-    connect.query(query, function(err,res) {
+    connection.query(query, function(err,res) {
         if (err) throw err;
         console.table('All Departments:', res);
         options();
@@ -91,7 +100,7 @@ function viewDepartments() {
 // viewRoles()
 function viewRoles() {
     var query = 'SELECT * FROM roles';
-    connect.query(query, function(err,res) {
+    connection.query(query, function(err,res) {
         if (err) throw err;
         console.table('All Roles:', res);
         options();
@@ -100,59 +109,43 @@ function viewRoles() {
 
 // addEmployee()
 function addEmployee() {
-   connect.query('SELECT * FROM role', function(err, res) {
-       if (err) throw err;
-       inqurier
-            .prompt([
-                {
-                    name: 'first_name',
-                    type: 'input',
-                    message: "What is the employee's first name?"
-                },
-                {
-                    name: 'last_name',
-                    type: 'input',
-                    message: "What is the employee's last name?"
-                },
-                {
-                    name: 'role',
-                    type: 'list',
-                    choices: function() {
-                        var roleArr = [];
-                        for (let i=0; i<res.length; i++) {
-                            roleArr.push(res[i].title);
-                        }
-                        return roleArr;
-                    },
-                    message: "What is the employee's role?"
-                },
-                {
-                    name: 'manager_id',
-                    type: 'input',
-                    message: "What is the employee's manager ID?"
-                }
-            ]).then(function(answer) {
-                let role_id;
-                for (let i=0; i<res.length; i++) {
-                    if (res[i].title == answer.role) {
-                        role_id = res[i].id;
-                        console.log(role_id);
-                    }
-                }
-                connect.query('INSET INTO employee SET ?', 
-                    {
-                        first_name: answer.first_name,
-                        last_name: answer.last_name,
-                        role_id: role_id,
-                        manager_id: answer.manager_id,
-                    },
-                function (err) {
-                    if (err) throw err;
-                    console.log('Your employee has been added!');
-                    options();
-                })
-            })
-   }) 
+    inqurier
+        .prompt([
+        {
+            type: "input",
+            message: "Enter the employee's first name",
+            name: "first_name"
+        },
+        {
+            type: "input",
+            message: "Enter the employee's last name",
+            name: "last_name"
+        },
+        {
+            type: "input",
+            message: "Enter the employee's role ID",
+            name: "role"
+        },
+        {
+            type: "input",
+            message: "Enter the employee's manager ID",
+            name: "manager_id"
+        }
+        ])
+        .then(function (res) {
+        const firstName = res.first_name;
+        const lastName = res.last_name;
+        const employRoleID = res.role;
+        const employManID = res.manager_id;
+        const query = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${firstName}", "${lastName}", "${employRoleID}", "${employManID}")`;
+        connection.query(query, function (err, res) {
+            if (err) {
+            throw err;
+            }
+            console.table(res);
+            options();
+        });
+        });
 };
 
 // addDepartment()
@@ -165,12 +158,12 @@ function addDepartment() {
                 message: 'Which department would you like to add?'
             }
         ]).then(function (answer) {
-            connect.query('INSERT INTO department SET ?',
+            connection.query('INSERT INTO department SET ?',
             {
                 name: answer.newDepartment
             });
             var query = 'SELECT * FROM department';
-            connect.query(query, function(err,res) {
+            connection.query(query, function(err,res) {
                 if (err) throw err;
                 console.log('Your deparmtne has been added!');
                 console.table('All Departments:', res);
@@ -181,7 +174,7 @@ function addDepartment() {
 
 // addRole()
 function addRole() {
-    connect.query('SELECT * FROM department', function(err,res) {
+    connection.query('SELECT * FROM department', function(err,res) {
         if (err) throw err;
 
         inqurier
@@ -215,7 +208,7 @@ function addRole() {
                     }
                 }
 
-                connect.query(
+                connection.query(
                     'INSERT INTO roles SET ?',
                     {
                         title: answer.new_role,
