@@ -4,6 +4,14 @@ const mysql = require('mysql2');
 const inqurier = require('inquirer');
 const consoleTable = require('console.table');
 const { connect } = require('./db/connection');
+const db = require('./db/connection');
+
+// connect to database
+db.connect(err => {
+    if (err) throw err;
+    console.log('Database connected.');
+    options();
+})
 
 
 // prompt user with different options
@@ -181,7 +189,7 @@ function addRole() {
                 {
                     name: 'new_role',
                     type: 'input',
-                    message: 'What new role would yo like to add?'
+                    message: 'What new role would you like to add?'
                 },
                 {
                     name: 'salary',
@@ -228,7 +236,10 @@ function addRole() {
 function updateEmployee() {};
 
 // deleteEmployee()
-function deleteEmployee() {};
+function deleteEmployee() {
+    let employeeArr = [];
+
+};
 
 // exitApp()
 function exitApp() {};

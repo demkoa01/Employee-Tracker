@@ -1,7 +1,7 @@
-DROP DATABASE IF EXISTS employee;
-CREATE DATABASE employee;
+-- DROP DATABASE IF EXISTS employee;
+-- CREATE DATABASE employee;
 
-USE employee;
+-- USE employee;
 
 DROP IF TABLE EXISTS department;
 DROP IF TABLE EXISTS roles;
